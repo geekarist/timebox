@@ -18,15 +18,17 @@ except:
 import re
 
 
-class IndicatorCPUSpeed:
+class IndicatorTimebox:
 
     def __init__(self):
+        self.duration_seconds = 15 * 60
+
         # param1: identifier of this indicator
         # param2: name of icon. this will be searched for in the standard them
         # dirs
         # finally, the category. We're monitoring CPUs, so HARDWARE.
         self.ind = AppIndicator.Indicator.new(
-            "indicator-cpuspeed",
+            "indicator-timebox",
             "",
             AppIndicator.IndicatorCategory.HARDWARE)
 
@@ -58,22 +60,10 @@ class IndicatorCPUSpeed:
         self.ind.set_menu(self.menu)
 
         # initialize cpu speed display
-        self.update_cpu_speeds()
+        self.update_countdown()
         # then start updating every 2 seconds
         # http://developer.gnome.org/pygobject/stable/glib-functions.html#function-glib--timeout-add-seconds
-        GLib.timeout_add_seconds(2, self.handler_timeout)
-
-    def get_cpu_speeds(self):
-        """Use regular expression to parse speeds of all CPU cores from
-        /proc/cpuinfo on Linux.
-        """
-
-        f = open('/proc/cpuinfo')
-        # this gives us e.g. ['2300', '2300']
-        s = re.findall('cpu MHz\s*:\s*(\d+)\.', f.read())
-        # this will give us ['2.3', '2.3']
-        f = ['%.1f' % (float(i) / 1000,) for i in s]
-        return f
+        GLib.timeout_add_seconds(1, self.call_update_countdown)
 
     def handler_menu_exit(self, evt):
         Gtk.main_quit()
@@ -82,22 +72,24 @@ class IndicatorCPUSpeed:
         # we can change the icon at any time
         self.ind.set_icon("indicator-messages-new")
 
-    def handler_timeout(self):
+    def call_update_countdown(self):
         """This will be called every few seconds by the GLib.timeout.
         """
         # read, parse and put cpu speeds in the label
-        self.update_cpu_speeds()
+        self.update_countdown()
         # return True so that we get called again
         # returning False will make the timeout stop
         return True
 
-    def update_cpu_speeds(self):
-        f = self.get_cpu_speeds()
-        self.ind.set_label('00:15:00', "..XX:XX:XX..")
+    def update_countdown(self):
+        self.duration_seconds = self.duration_seconds - 1
+        minutes = self.duration_seconds / 60
+        seconds = self.duration_seconds % 60
+        self.ind.set_label('00:%02d:%02d' % (minutes, seconds), "..XX:XX:XX..")
 
     def main(self):
         Gtk.main()
 
 if __name__ == "__main__":
-    ind = IndicatorCPUSpeed()
+    ind = IndicatorTimebox()
     ind.main()
