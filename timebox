@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 # minimal sample showing how to write GTK3 indicator for Ubuntu Unity
 # copyright 2012 Charl P. Botha <info@charlbotha.com>
 # hereby released under the BSD license.
@@ -16,12 +18,13 @@ except:
     from gi.repository import AppIndicator
 
 import re
+import sys
 
 
 class IndicatorTimebox:
 
     def __init__(self):
-        self.duration_seconds = 15 * 60
+        parse_args()
 
         # param1: identifier of this indicator
         # param2: name of icon. this will be searched for in the standard them
@@ -64,6 +67,13 @@ class IndicatorTimebox:
         # then start updating every 2 seconds
         # http://developer.gnome.org/pygobject/stable/glib-functions.html#function-glib--timeout-add-seconds
         GLib.timeout_add_seconds(1, self.call_update_countdown)
+
+    def parse_args(self):
+        if len(sys.argv) >= 2:
+            self.duration_seconds = 60 * int(str(sys.argv[1]))
+        else:
+            print 'Usage: timebox <minutes>'
+            sys.exit(1)
 
     def handler_menu_exit(self, evt):
         Gtk.main_quit()
