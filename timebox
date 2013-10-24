@@ -24,7 +24,11 @@ import sys
 class IndicatorTimebox:
 
     def __init__(self):
+<<<<<<< HEAD:timebox
         self.parse_args()
+=======
+        parse_args()
+>>>>>>> 1c45f9037170302fc44d66a6a26d78ec21f6a909:timebox
 
         # param1: identifier of this indicator
         # param2: name of icon. this will be searched for in the standard them
