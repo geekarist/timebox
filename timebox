@@ -64,13 +64,14 @@ class IndicatorTimebox:
 
         # initialize cpu speed display
         self.update_countdown()
-        # then start updating every 2 seconds
+
+        # then start updating every 1 seconds
         # http://developer.gnome.org/pygobject/stable/glib-functions.html#function-glib--timeout-add-seconds
         GLib.timeout_add_seconds(1, self.call_update_countdown)
 
     def parse_args(self):
         if len(sys.argv) >= 2:
-            self.duration_seconds = 60 * int(str(sys.argv[1]))
+            self.duration_seconds = 60 * float(str(sys.argv[1]))
         else:
             print 'Usage: timebox <minutes>'
             sys.exit(1)
@@ -89,7 +90,18 @@ class IndicatorTimebox:
         self.update_countdown()
         # return True so that we get called again
         # returning False will make the timeout stop
-        return True
+
+        if self.duration_seconds > 0:
+            return True
+        self.display_timesup_alert()
+        return False
+
+    def display_timesup_alert(self):
+        dialog = Gtk.MessageDialog(
+            message_format = "Time's up!", buttons = Gtk.ButtonsType.OK,
+            flags = Gtk.DialogFlags.MODAL)
+        dialog.run()
+        dialog.destroy()
 
     def update_countdown(self):
         self.duration_seconds = self.duration_seconds - 1
