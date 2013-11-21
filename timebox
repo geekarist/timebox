@@ -96,10 +96,20 @@ class IndicatorTimebox:
         self.display_timesup_alert()
         return False
 
+    def snooze(self, evt):
+        self.duration_seconds = 60
+        self.update_countdown()
+        GLib.timeout_add_seconds(1, self.call_update_countdown)
+        # TODO self.close_timesup_alert()
+
     def display_timesup_alert(self):
         dialog = Gtk.MessageDialog(
             message_format = "Time's up!", buttons = Gtk.ButtonsType.OK,
             flags = Gtk.DialogFlags.MODAL)
+        snooze_button = Gtk.Button(label="Snooze")
+        snooze_button.connect("clicked", self.snooze)
+        dialog.action_area.pack_start(snooze_button, True, True, 0)
+        snooze_button.show()
         dialog.run()
         dialog.destroy()
 
