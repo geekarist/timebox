@@ -52,12 +52,18 @@ class IndicatorTimebox:
         # item.show()
         # self.menu.append(item)
 
+        set_time_item = Gtk.MenuItem()
+        set_time_item.set_label("Set time")
+        set_time_item.connect("activate", self.handler_menu_set_time)
+        set_time_item.show()
+        self.menu.append(set_time_item)
+
         # this is for exiting the app
-        item = Gtk.MenuItem()
-        item.set_label("Exit")
-        item.connect("activate", self.handler_menu_exit)
-        item.show()
-        self.menu.append(item)
+        exit_item = Gtk.MenuItem()
+        exit_item.set_label("Exit")
+        exit_item.connect("activate", self.handler_menu_exit)
+        exit_item.show()
+        self.menu.append(exit_item)
 
         self.menu.show()
         self.ind.set_menu(self.menu)
@@ -73,11 +79,28 @@ class IndicatorTimebox:
         if len(sys.argv) >= 2:
             self.duration_seconds = 60 * float(str(sys.argv[1]))
         else:
-            print 'Usage: timebox <minutes>'
-            sys.exit(1)
+            self.handler_menu_set_time(None)
 
     def handler_menu_exit(self, evt):
         Gtk.main_quit()
+
+    def handler_menu_set_time(self, evt):
+        dialogWindow = Gtk.MessageDialog(None,
+                              Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                              Gtk.MessageType.QUESTION,
+                              Gtk.ButtonsType.OK_CANCEL,
+                              'Set timebox')
+        dialogBox = dialogWindow.get_content_area()
+        userEntry = Gtk.Entry()
+        userEntry.set_size_request(250,0)
+        dialogBox.pack_end(userEntry, False, False, 0)
+
+        dialogWindow.show_all()
+        response = dialogWindow.run()
+        text = userEntry.get_text() 
+        dialogWindow.destroy()
+        if (response == Gtk.ResponseType.OK) and (text != ''):
+            self.duration_seconds = 60 * float(str(text))
 
     def handler_menu_test(self, evt):
         # we can change the icon at any time
